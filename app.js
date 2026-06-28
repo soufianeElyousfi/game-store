@@ -362,11 +362,12 @@
     $('modalAboutTitle').textContent   = t('about');
     if ($('modalScrTitle')) $('modalScrTitle').textContent = t('screenshots');
     $('modalDownloadBtn').dataset.url = g.url || `https://play.google.com/store/apps/details?id=${g.id}`;
-    // Freeze modal height to current visual viewport so address bar can't affect it
-    const vh = (window.visualViewport?.height ?? window.innerHeight) * 0.92;
-    $('gameModal').style.maxHeight = vh + 'px';
+    const modal = $('gameModal');
+    modal.classList.remove('scrollable');
+    modal.style.height = ((window.visualViewport?.height ?? window.innerHeight) * 0.92) + 'px';
     $('modalOverlay').classList.add('open');
     document.body.style.overflow = 'hidden';
+    setTimeout(() => modal.classList.add('scrollable'), 400);
 
     try {
       const json = await apiFetch(`/game/${encodeURIComponent(g.id)}`);
@@ -390,8 +391,10 @@
   }
 
   function closeModal() {
+    const modal = $('gameModal');
+    modal.classList.remove('scrollable');
     $('modalOverlay').classList.remove('open');
-    $('gameModal').style.maxHeight = '';
+    modal.style.height = '';
     document.body.style.overflow = '';
   }
 
