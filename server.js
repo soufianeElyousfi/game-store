@@ -88,7 +88,7 @@ function formatApp(item, catKey, locale) {
     dev:         item.developer,
     cat:         catKey,
     icon:        proxyImg(item.icon),
-    banner:      proxyImg(item.headerImage || null),
+    banner:      proxyImg(item.headerImage || (item.screenshots && item.screenshots[0]) || null),
     rating:      item.score ? +item.score.toFixed(1) : 0,
     downloads:   item.installs || '—',
     installs:    item.installs || '—',
@@ -115,12 +115,12 @@ app.get('/api/games', async (req, res) => {
   try {
     const locale  = detectLocale(req);
     const catKey  = req.query.cat || 'all';
-    const limit   = Math.min(parseInt(req.query.limit) || 20, 40);
+    const limit   = Math.min(parseInt(req.query.limit) || 20, 24);
     const gcat    = CATEGORIES[catKey] || gplay.category.GAME;
 
     const key = `list:${catKey}:${limit}:${locale.lang}`;
     const apps = await cached(key, () =>
-      gplay.list({ category: gcat, collection: gplay.collection.TOP_FREE, num: limit, lang: locale.lang, country: locale.country })
+      gplay.list({ category: gcat, collection: gplay.collection.TOP_FREE, num: limit, lang: locale.lang, country: locale.country, fullDetail: true })
     );
     res.json({ ok: true, games: apps.map(a => formatApp(a, catKey, locale)), locale });
   } catch (err) {
@@ -155,7 +155,7 @@ app.get('/api/search', async (req, res) => {
 
     const key = `search:${q}:${limit}:${locale.lang}`;
     const results = await cached(key, () =>
-      gplay.search({ term: q, num: limit, lang: locale.lang, country: locale.country })
+      gplay.search({ term: q, num: limit, lang: locale.lang, country: locale.country, fullDetail: true })
     );
     res.json({ ok: true, games: results.map(a => formatApp(a, 'all', locale)), locale });
   } catch (err) {
@@ -170,7 +170,7 @@ app.get('/api/featured', async (req, res) => {
     const locale = detectLocale(req);
     const key    = `featured:${locale.lang}`;
     const apps   = await cached(key, () =>
-      gplay.list({ category: gplay.category.GAME, collection: gplay.collection.GROSSING, num: 6, lang: locale.lang, country: locale.country })
+      gplay.list({ category: gplay.category.GAME, collection: gplay.collection.GROSSING, num: 6, lang: locale.lang, country: locale.country, fullDetail: true })
     );
     res.json({ ok: true, games: apps.map(a => formatApp(a, 'all', locale)), locale });
   } catch (err) {
