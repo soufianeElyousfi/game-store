@@ -362,6 +362,9 @@
     $('modalAboutTitle').textContent   = t('about');
     if ($('modalScrTitle')) $('modalScrTitle').textContent = t('screenshots');
     $('modalDownloadBtn').dataset.url = g.url || `https://play.google.com/store/apps/details?id=${g.id}`;
+    // Freeze modal height to current visual viewport so address bar can't affect it
+    const vh = (window.visualViewport?.height ?? window.innerHeight) * 0.92;
+    $('gameModal').style.maxHeight = vh + 'px';
     $('modalOverlay').classList.add('open');
     document.body.style.overflow = 'hidden';
 
@@ -388,6 +391,7 @@
 
   function closeModal() {
     $('modalOverlay').classList.remove('open');
+    $('gameModal').style.maxHeight = '';
     document.body.style.overflow = '';
   }
 
