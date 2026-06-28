@@ -110,19 +110,23 @@ app.get('/api/locale', (req, res) => {
   res.json(detectLocale(req));
 });
 
-// GET /api/games?cat=action&limit=20
+// GET /api/games?cat=action&limit=20&offset=0
 app.get('/api/games', async (req, res) => {
   try {
     const locale  = detectLocale(req);
     const catKey  = req.query.cat || 'all';
-    const limit   = Math.min(parseInt(req.query.limit) || 20, 24);
+    const limit   = Math.min(parseInt(req.query.limit) || 24, 24);
+    const offset  = parseInt(req.query.offset) || 0;
     const gcat    = CATEGORIES[catKey] || gplay.category.GAME;
 
-    const key = `list:${catKey}:${limit}:${locale.lang}`;
+    // Fetch enough to cover offset + limit (max 100)
+    const fetchNum = Math.min(offset + limit, 100);
+    const key = `list:${catKey}:${fetchNum}:${locale.lang}`;
     const apps = await cached(key, () =>
-      gplay.list({ category: gcat, collection: gplay.collection.TOP_FREE, num: limit, lang: locale.lang, country: locale.country, fullDetail: true })
+      gplay.list({ category: gcat, collection: gplay.collection.TOP_FREE, num: fetchNum, lang: locale.lang, country: locale.country, fullDetail: true })
     );
-    res.json({ ok: true, games: apps.map(a => formatApp(a, catKey, locale)), locale });
+    const slice = apps.slice(offset, offset + limit);
+    res.json({ ok: true, games: slice.map(a => formatApp(a, catKey, locale)), locale });
   } catch (err) {
     console.error('list error:', err.message);
     res.status(500).json({ ok: false, error: err.message });

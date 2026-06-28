@@ -5,6 +5,9 @@
   let currentCat = 'all';
   let currentSort = 'default';
   let allGamesCache = [];    // raw list for client-side sort
+  let infinitePage  = 1;
+  let infiniteLoading = false;
+  let infiniteExhausted = false;
   let heroIndex = 0;
   let heroTimer = null;
   let featuredGames = [];
@@ -658,8 +661,9 @@
       $('gamesGrid').innerHTML = skeletonGrid();
       $('sortBar').style.display = '';
       currentSort = 'default';
+      resetInfiniteScroll();
       document.querySelectorAll('.sort-btn').forEach(b => b.classList.toggle('active', b.dataset.sort === 'default'));
-      const json = await apiFetch(`/games?cat=${currentCat}&limit=48`);
+      const json = await apiFetch(`/games?cat=${currentCat}&limit=24`);
       if (json.locale) applyLocale(json.locale);
       renderGrid(json.games || []);
     });
@@ -703,6 +707,49 @@
     window.scrollTo({ top: document.querySelector('.section:last-child').offsetTop - 80, behavior: 'smooth' });
   });
 
+  // ─── Infinite Scroll ───
+  async function loadMoreGames() {
+    if (infiniteLoading || infiniteExhausted) return;
+    infiniteLoading = true;
+    $('infiniteSpinner').style.display = 'block';
+
+    try {
+      const offset = infinitePage * 24;
+      const json = await apiFetch(`/games?cat=${currentCat}&limit=24&offset=${offset}`);
+      const newGames = json.games || [];
+
+      if (newGames.length === 0) {
+        infiniteExhausted = true;
+        $('infiniteSpinner').style.display = 'none';
+        return;
+      }
+
+      // Append to cache and grid
+      allGamesCache = [...allGamesCache, ...newGames];
+      const grid = $('gamesGrid');
+      const sorted = sortGames(newGames);
+      sorted.forEach(g => grid.appendChild(makeGridCard(g)));
+      observeInstalls(grid);
+      infinitePage++;
+    } catch(e) { /* ignore */ }
+
+    infiniteLoading = false;
+    $('infiniteSpinner').style.display = 'none';
+  }
+
+  const infiniteObserver = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) loadMoreGames();
+  }, { rootMargin: '200px' });
+
+  infiniteObserver.observe($('infiniteSentinel'));
+
+  function resetInfiniteScroll() {
+    infinitePage = 1;
+    infiniteLoading = false;
+    infiniteExhausted = false;
+    $('infiniteSpinner').style.display = 'none';
+  }
+
   // ─── Init ───
   async function loadDefault() {
     $('heroSection').style.display = '';
@@ -713,6 +760,7 @@
     $('newGames').innerHTML  = skeletonRow();
     $('gamesGrid').innerHTML = skeletonGrid();
     currentSort = 'default';
+    resetInfiniteScroll();
     document.querySelectorAll('.sort-btn').forEach(b => b.classList.toggle('active', b.dataset.sort === 'default'));
 
     const [featJson, topJson, newJson] = await Promise.all([
@@ -731,7 +779,7 @@
     renderRow('topGames', topGamesCache);
     renderRow('newGames', newGamesCache);
 
-    const allJson = await apiFetch('/games?cat=all&limit=48');
+    const allJson = await apiFetch('/games?cat=all&limit=24');
     if (allJson.locale) applyLocale(allJson.locale);
     $('titleAllGames').textContent = t('allGames');
     renderGrid(allJson.games || []);
