@@ -2,7 +2,20 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <style>
+    /* Fallback for browsers without dvh support */
+    @supports not (height: 100dvh) {
+      .modal-overlay, .lightbox-overlay, .ad-overlay { height: calc(var(--vh, 1vh) * 100); }
+      .modal { max-height: calc(var(--vh, 1vh) * 92); }
+    }
+  </style>
+  <script>
+    function setVh() { document.documentElement.style.setProperty('--vh', (window.visualViewport?.height ?? window.innerHeight) / 100 + 'px'); }
+    setVh();
+    window.visualViewport?.addEventListener('resize', setVh);
+    window.addEventListener('resize', setVh);
+  </script>
   <title>GameStore</title>
   <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />

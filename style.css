@@ -665,7 +665,11 @@ body {
 /* ─── Modal ─── */
 .modal-overlay {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 100dvh;
   background: rgba(0,0,0,0.55);
   z-index: 200;
   display: flex;
@@ -684,10 +688,10 @@ body {
 
 .modal {
   background: var(--surface);
+  max-height: 92dvh;
   border-radius: 24px 24px 0 0;
   width: 100%;
   max-width: 640px;
-  max-height: 92vh;
   overflow-y: auto;
   transform: translateY(60px);
   transition: transform .3s cubic-bezier(.4,0,.2,1);
@@ -984,7 +988,8 @@ body {
 .lightbox-overlay {
   display: none;
   position: fixed;
-  inset: 0;
+  top: 0; left: 0; right: 0; bottom: 0;
+  height: 100dvh;
   z-index: 2000;
   background: rgba(0,0,0,0.97);
   flex-direction: column;
@@ -1086,7 +1091,8 @@ body {
 .ad-overlay {
   display: none;
   position: fixed;
-  inset: 0;
+  top: 0; left: 0; right: 0; bottom: 0;
+  height: 100dvh;
   z-index: 3000;
   background: rgba(0,0,0,0.85);
   overflow: hidden;
