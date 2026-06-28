@@ -173,7 +173,7 @@ body {
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   position: sticky;
-  top: 65px;
+  top: var(--header-h, 65px);
   z-index: 99;
 }
 

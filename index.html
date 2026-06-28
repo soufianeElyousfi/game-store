@@ -15,6 +15,13 @@
     setVh();
     window.visualViewport?.addEventListener('resize', setVh);
     window.addEventListener('resize', setVh);
+
+    function setHeaderH() {
+      const h = document.querySelector('.header');
+      if (h) document.documentElement.style.setProperty('--header-h', h.offsetHeight + 'px');
+    }
+    window.addEventListener('DOMContentLoaded', setHeaderH);
+    window.addEventListener('resize', setHeaderH);
   </script>
   <title>GameStore</title>
   <link rel="stylesheet" href="style.css" />
