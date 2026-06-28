@@ -55,8 +55,8 @@ body {
   top: 0;
   z-index: 100;
   background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  box-shadow: var(--shadow);
+  box-shadow: none;
+  border-bottom: none;
 }
 
 .header-inner {
@@ -172,9 +172,10 @@ body {
 .category-bar {
   background: var(--surface);
   border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow);
   position: sticky;
   top: var(--header-h, 65px);
-  z-index: 99;
+  z-index: 100;
 }
 
 .categories {
