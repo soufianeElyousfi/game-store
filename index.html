@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GameStore</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="material-icons logo-icon">sports_esports</span>
+        <span class="logo-text">GameStore</span>
+      </div>
+      <div class="search-bar">
+        <span class="material-icons search-icon">search</span>
+        <input type="text" id="searchInput" placeholder="ابحث عن لعبة..." />
+        <button class="search-clear" id="clearSearch" style="display:none">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn"><span class="material-icons">notifications_none</span></button>
+        <div class="avatar">G</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Category Bar -->
+  <nav class="category-bar">
+    <div class="categories" id="categories">
+      <button class="cat-btn active" data-cat="all">الكل</button>
+      <button class="cat-btn" data-cat="action">أكشن</button>
+      <button class="cat-btn" data-cat="rpg">RPG</button>
+      <button class="cat-btn" data-cat="strategy">استراتيجية</button>
+      <button class="cat-btn" data-cat="sports">رياضة</button>
+      <button class="cat-btn" data-cat="puzzle">ألغاز</button>
+      <button class="cat-btn" data-cat="racing">سباقات</button>
+      <button class="cat-btn" data-cat="adventure">مغامرة</button>
+    </div>
+  </nav>
+
+  <main class="main">
+
+    <!-- Hero Banner -->
+    <section class="hero-section" id="heroSection">
+      <div class="hero-card" id="heroGame">
+        <div class="hero-bg" id="heroBg"></div>
+        <div class="hero-content">
+          <div class="hero-badge" id="heroBadge">مميز</div>
+          <h2 class="hero-title" id="heroTitle"></h2>
+          <p class="hero-desc" id="heroDesc"></p>
+          <div class="hero-meta">
+            <span class="hero-rating" id="heroRating"></span>
+            <span class="hero-size" id="heroSize"></span>
+          </div>
+          <button class="btn-download hero-btn" id="heroDownloadBtn">
+            <span class="material-icons">file_download</span>
+            <span>تحميل مجاني</span>
+          </button>
+        </div>
+        <div class="hero-indicators" id="heroIndicators"></div>
+      </div>
+    </section>
+
+    <!-- Top Charts -->
+    <section class="section" id="topSection">
+      <div class="section-header">
+        <h3 class="section-title" id="titleTopGames">الأكثر تحميلاً</h3>
+        <a href="#" class="see-all" id="seeAllTop"><span class="see-all-text">عرض الكل</span> <span class="material-icons">chevron_left</span></a>
+      </div>
+      <div class="games-row" id="topGames"></div>
+    </section>
+
+    <!-- New Releases -->
+    <section class="section" id="newSection">
+      <div class="section-header">
+        <h3 class="section-title" id="titleNewGames">إصدارات جديدة</h3>
+        <a href="#" class="see-all" id="seeAllNew"><span class="see-all-text">عرض الكل</span> <span class="material-icons">chevron_left</span></a>
+      </div>
+      <div class="games-row" id="newGames"></div>
+    </section>
+
+    <!-- All Games Grid -->
+    <section class="section">
+      <div class="section-header">
+        <h3 class="section-title" id="titleAllGames">جميع الألعاب</h3>
+        <div class="sort-bar" id="sortBar">
+          <button class="sort-btn active" data-sort="default" id="sortDefault"><span class="material-icons">apps</span><span class="sort-label" id="sortLabelDefault">الافتراضي</span></button>
+          <button class="sort-btn" data-sort="rating"><span class="material-icons">star</span><span class="sort-label" id="sortLabelRating">التقييم</span></button>
+          <button class="sort-btn" data-sort="downloads"><span class="material-icons">download</span><span class="sort-label" id="sortLabelDownloads">التحميل</span></button>
+          <button class="sort-btn" data-sort="name"><span class="material-icons">sort_by_alpha</span><span class="sort-label" id="sortLabelName">الاسم</span></button>
+        </div>
+      </div>
+      <div class="games-grid" id="gamesGrid"></div>
+    </section>
+
+  </main>
+
+  <!-- Game Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="gameModal">
+      <button class="modal-close" id="modalClose">
+        <span class="material-icons">close</span>
+      </button>
+      <div class="modal-hero">
+        <div class="modal-hero-bg" id="modalBg"></div>
+        <div class="modal-icon" id="modalIcon"></div>
+      </div>
+      <div class="modal-body">
+        <div class="modal-header-info">
+          <div>
+            <h2 class="modal-title" id="modalTitle"></h2>
+            <p class="modal-dev" id="modalDev"></p>
+          </div>
+          <a class="btn-playstore modal-dl-btn" id="modalDownloadBtn" href="#" target="_blank" rel="noopener">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Google Play" class="playstore-badge" />
+          </a>
+        </div>
+        <!-- Screenshots directly below icon/title -->
+        <div class="modal-screenshots">
+          <div class="screenshots-row" id="modalScreenshots"></div>
+        </div>
+
+        <div class="modal-stats">
+          <div class="stat">
+            <span class="material-icons stat-icon">star</span>
+            <span class="stat-val" id="modalRating"></span>
+            <span class="stat-label" id="modalLabelRating">التقييم</span>
+          </div>
+          <div class="stat">
+            <span class="material-icons stat-icon">download</span>
+            <span class="stat-val" id="modalDownloads"></span>
+            <span class="stat-label" id="modalLabelDl">تحميل</span>
+          </div>
+          <div class="stat">
+            <span class="material-icons stat-icon">storage</span>
+            <span class="stat-val" id="modalSize"></span>
+            <span class="stat-label" id="modalLabelSize">الحجم</span>
+          </div>
+          <div class="stat">
+            <span class="material-icons stat-icon">android</span>
+            <span class="stat-val" id="modalAndroid"></span>
+            <span class="stat-label" id="modalLabelAndroid">أندرويد</span>
+          </div>
+        </div>
+        <div class="modal-desc-section">
+          <h4 id="modalAboutTitle">عن اللعبة</h4>
+          <p id="modalDesc"></p>
+        </div>
+        <div class="modal-tags" id="modalTags"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lightbox -->
+  <div class="lightbox-overlay" id="lightboxOverlay">
+    <button class="lightbox-close" id="lightboxClose"><span class="material-icons">close</span></button>
+    <button class="lightbox-nav lightbox-prev" id="lightboxPrev"><span class="material-icons">chevron_left</span></button>
+    <div class="lightbox-track-wrap">
+      <div class="lightbox-track" id="lightboxTrack"></div>
+    </div>
+    <button class="lightbox-nav lightbox-next" id="lightboxNext"><span class="material-icons">chevron_right</span></button>
+    <div class="lightbox-dots" id="lightboxDots"></div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">
+    <span class="material-icons" id="toastIcon">check_circle</span>
+    <span id="toastMsg"></span>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
