@@ -468,11 +468,85 @@
   $('modalClose').addEventListener('click', closeModal);
   $('modalOverlay').addEventListener('click', e => { if (e.target===$('modalOverlay')) closeModal(); });
 
+  // Intercept modal download button → show ad
+  $('modalDownloadBtn').addEventListener('click', e => {
+    e.preventDefault();
+    const href = $('modalDownloadBtn').href;
+    const name = $('modalTitle').textContent;
+    closeModal();
+    openAd(href, name);
+  });
+
+  // ─── Ad Interstitial ───
+  const AD_URL = 'https://www.room533games.online';
+  let adTimer = null;
+
+  function openAd(gameUrl, gameName) {
+    clearInterval(adTimer);
+    const overlay = $('adOverlay');
+    const frame   = $('adFrame');
+    const fallback = $('adFallback');
+    const skipBtn  = $('adSkipBtn');
+    const countdown = $('adCountdown');
+    const dlBtn   = $('adDlBtn');
+    const dlText  = $('adDlText');
+
+    // Reset
+    skipBtn.disabled = true;
+    skipBtn.textContent = '';
+    countdown.textContent = '5';
+    skipBtn.appendChild(countdown);
+    dlBtn.style.pointerEvents = 'none';
+    dlBtn.style.opacity = '.5';
+    dlText.textContent = locale.lang === 'ar' ? 'انتظر...' : 'Wait...';
+    $('adGameName').textContent = gameName;
+    dlBtn.href = gameUrl || AD_URL;
+
+    // Load iframe
+    fallback.classList.remove('show');
+    frame.src = AD_URL;
+    frame.onerror = () => { frame.style.display = 'none'; fallback.classList.add('show'); };
+    // Fallback if iframe blocked (no load event fires for cross-origin errors)
+    setTimeout(() => {
+      try {
+        const doc = frame.contentDocument || frame.contentWindow?.document;
+        if (!doc || doc.body === null) { frame.style.display='none'; fallback.classList.add('show'); }
+      } catch { frame.style.display='none'; fallback.classList.add('show'); }
+    }, 3000);
+
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    // Countdown
+    let sec = 5;
+    adTimer = setInterval(() => {
+      sec--;
+      countdown.textContent = sec;
+      if (sec <= 0) {
+        clearInterval(adTimer);
+        skipBtn.disabled = false;
+        skipBtn.innerHTML = locale.lang === 'ar' ? 'تخطى ✕' : 'Skip ✕';
+        dlBtn.style.pointerEvents = '';
+        dlBtn.style.opacity = '1';
+        dlText.textContent = locale.lang === 'ar' ? 'تحميل اللعبة' : 'Download';
+      }
+    }, 1000);
+  }
+
+  function closeAd() {
+    clearInterval(adTimer);
+    $('adOverlay').classList.remove('open');
+    $('adFrame').src = '';
+    document.body.style.overflow = '';
+  }
+
+  $('adSkipBtn').addEventListener('click', closeAd);
+  $('adOverlay').addEventListener('click', e => { if (e.target === $('adOverlay')) closeAd(); });
+
   // ─── Download ───
   function triggerDownload(g) {
-    if (g.url) window.open(g.url, '_blank');
-    showToast(t('openPlay', g.name));
     closeModal();
+    openAd(g.url || `https://play.google.com/store/apps/details?id=${g.id}`, g.name);
   }
 
   // ─── Search ───

@@ -158,6 +158,35 @@
     </div>
   </div>
 
+  <!-- Ad Interstitial -->
+  <div class="ad-overlay" id="adOverlay">
+    <div class="ad-box">
+      <div class="ad-header">
+        <span class="ad-label">إعلان</span>
+        <button class="ad-skip-btn" id="adSkipBtn" disabled>
+          <span id="adCountdown">5</span>
+        </button>
+      </div>
+      <div class="ad-site-wrap">
+        <iframe id="adFrame" src="" frameborder="0" allowfullscreen></iframe>
+        <div class="ad-fallback" id="adFallback">
+          <span class="material-icons" style="font-size:48px;color:#01875f">sports_esports</span>
+          <p>تفضل بزيارة موقعنا</p>
+          <a id="adFallbackLink" href="https://www.room533games.online" target="_blank" rel="noopener">
+            www.room533games.online
+          </a>
+        </div>
+      </div>
+      <div class="ad-footer">
+        <span class="ad-game-name" id="adGameName"></span>
+        <a class="ad-dl-btn" id="adDlBtn" href="#" target="_blank" rel="noopener" style="pointer-events:none;opacity:.5">
+          <span class="material-icons">file_download</span>
+          <span id="adDlText">انتظر...</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
   <!-- Lightbox -->
   <div class="lightbox-overlay" id="lightboxOverlay">
     <button class="lightbox-close" id="lightboxClose"><span class="material-icons">close</span></button>
