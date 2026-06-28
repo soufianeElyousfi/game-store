@@ -485,20 +485,21 @@
   const AD_URL = 'https://www.room533games.online';
   let adTimer = null;
 
-  // Keep ad box inside visual viewport (away from address bar)
-  function updateAdPosition() {
-    const box = document.querySelector('.ad-box');
-    if (!box || !$('adOverlay').classList.contains('open')) return;
+  // Sync overlay to visual viewport so address bar never overlaps
+  function syncAdOverlay() {
+    const overlay = $('adOverlay');
+    if (!overlay.classList.contains('open')) return;
     const vv = window.visualViewport;
     if (!vv) return;
-    const offsetTop = vv.offsetTop + 12;          // 12px gap from address bar
-    const visH      = vv.height - 12;             // available height
-    box.style.top       = (offsetTop + visH / 2) + 'px';
-    box.style.maxHeight = (visH * 0.92) + 'px';
+    // Move overlay to exactly match the visual viewport
+    overlay.style.top    = vv.offsetTop  + 'px';
+    overlay.style.left   = vv.offsetLeft + 'px';
+    overlay.style.width  = vv.width      + 'px';
+    overlay.style.height = vv.height     + 'px';
   }
 
-  window.visualViewport?.addEventListener('resize', updateAdPosition);
-  window.visualViewport?.addEventListener('scroll', updateAdPosition);
+  window.visualViewport?.addEventListener('resize', syncAdOverlay);
+  window.visualViewport?.addEventListener('scroll', syncAdOverlay);
 
   function openAd(gameUrl, gameName) {
     clearInterval(adTimer);
@@ -535,7 +536,7 @@
 
     overlay.classList.add('open');
     document.body.style.overflow = 'hidden';
-    requestAnimationFrame(updateAdPosition);
+    requestAnimationFrame(syncAdOverlay);
 
     // Countdown
     let sec = 5;
@@ -553,6 +554,11 @@
     }, 1000);
   }
 
+  function resetAdOverlayStyle() {
+    const overlay = $('adOverlay');
+    overlay.style.top = overlay.style.left = overlay.style.width = overlay.style.height = '';
+  }
+
   function closeAd(animate = false) {
     clearInterval(adTimer);
     const box = document.querySelector('.ad-box');
@@ -565,11 +571,13 @@
         document.body.style.overflow = '';
         box.style.transition = '';
         box.style.transform = '';
+        resetAdOverlayStyle();
       }, 300);
     } else {
       $('adOverlay').classList.remove('open');
       $('adFrame').src = '';
       document.body.style.overflow = '';
+      resetAdOverlayStyle();
     }
   }
 
