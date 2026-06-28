@@ -47,12 +47,15 @@ body {
   background: var(--surface2);
   color: var(--text);
   min-height: 100vh;
+  padding-top: var(--header-h, 65px);
 }
 
 /* ─── Header ─── */
 .header {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 100;
   background: var(--surface);
   box-shadow: none;
@@ -175,7 +178,7 @@ body {
   box-shadow: var(--shadow);
   position: sticky;
   top: var(--header-h, 65px);
-  z-index: 100;
+  z-index: 99;
 }
 
 .categories {
