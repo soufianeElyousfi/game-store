@@ -485,6 +485,21 @@
   const AD_URL = 'https://www.room533games.online';
   let adTimer = null;
 
+  // Keep ad box inside visual viewport (away from address bar)
+  function updateAdPosition() {
+    const box = document.querySelector('.ad-box');
+    if (!box || !$('adOverlay').classList.contains('open')) return;
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const offsetTop = vv.offsetTop + 12;          // 12px gap from address bar
+    const visH      = vv.height - 12;             // available height
+    box.style.top       = (offsetTop + visH / 2) + 'px';
+    box.style.maxHeight = (visH * 0.92) + 'px';
+  }
+
+  window.visualViewport?.addEventListener('resize', updateAdPosition);
+  window.visualViewport?.addEventListener('scroll', updateAdPosition);
+
   function openAd(gameUrl, gameName) {
     clearInterval(adTimer);
     const overlay = $('adOverlay');
@@ -520,6 +535,7 @@
 
     overlay.classList.add('open');
     document.body.style.overflow = 'hidden';
+    requestAnimationFrame(updateAdPosition);
 
     // Countdown
     let sec = 5;

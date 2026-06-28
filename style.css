@@ -1137,6 +1137,7 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  margin-top: 12px;
   background: var(--surface);
   border-radius: 20px;
   width: calc(100% - 32px);
