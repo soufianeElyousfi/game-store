@@ -1110,6 +1110,16 @@ body {
   flex-direction: column;
 }
 
+.ad-drag-handle {
+  width: 40px;
+  height: 4px;
+  background: var(--border);
+  border-radius: 4px;
+  margin: 10px auto 0;
+  flex-shrink: 0;
+  cursor: grab;
+}
+
 .ad-header {
   display: flex;
   align-items: center;

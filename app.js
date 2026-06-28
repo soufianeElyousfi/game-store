@@ -532,15 +532,68 @@
     }, 1000);
   }
 
-  function closeAd() {
+  function closeAd(animate = false) {
     clearInterval(adTimer);
-    $('adOverlay').classList.remove('open');
-    $('adFrame').src = '';
-    document.body.style.overflow = '';
+    const box = document.querySelector('.ad-box');
+    if (animate && box) {
+      box.style.transition = 'transform .3s ease';
+      box.style.transform = 'translate(-50%, 120%)';
+      setTimeout(() => {
+        $('adOverlay').classList.remove('open');
+        $('adFrame').src = '';
+        document.body.style.overflow = '';
+        box.style.transition = '';
+        box.style.transform = '';
+      }, 300);
+    } else {
+      $('adOverlay').classList.remove('open');
+      $('adFrame').src = '';
+      document.body.style.overflow = '';
+    }
   }
 
-  $('adSkipBtn').addEventListener('click', closeAd);
-  $('adOverlay').addEventListener('click', e => { if (e.target === $('adOverlay')) closeAd(); });
+  $('adSkipBtn').addEventListener('click', () => closeAd(true));
+  $('adOverlay').addEventListener('click', e => { if (e.target === $('adOverlay')) closeAd(true); });
+
+  // ─── Swipe down to close ad ───
+  (function() {
+    const box = document.querySelector('.ad-box');
+    let startY = 0;
+    let currentY = 0;
+    let dragging = false;
+
+    box.addEventListener('pointerdown', e => {
+      // Only drag from header area or if not on iframe
+      if (e.target.tagName === 'IFRAME') return;
+      startY = e.clientY;
+      currentY = 0;
+      dragging = true;
+      box.style.transition = 'none';
+      box.setPointerCapture(e.pointerId);
+    });
+
+    box.addEventListener('pointermove', e => {
+      if (!dragging) return;
+      currentY = e.clientY - startY;
+      if (currentY < 0) currentY = 0; // no dragging up
+      box.style.transform = `translate(-50%, calc(-50% + ${currentY}px))`;
+    });
+
+    function endDrag() {
+      if (!dragging) return;
+      dragging = false;
+      if (currentY > 120) {
+        closeAd(true);
+      } else {
+        box.style.transition = 'transform .25s ease';
+        box.style.transform = 'translate(-50%, -50%)';
+        setTimeout(() => { box.style.transition = ''; }, 250);
+      }
+    }
+
+    box.addEventListener('pointerup', endDrag);
+    box.addEventListener('pointercancel', endDrag);
+  })();
 
   // ─── Download ───
   function triggerDownload(g) {
