@@ -24,6 +24,10 @@
 }
 
 @media (prefers-color-scheme: dark) {
+  .header, .category-bar {
+    background: rgba(30,30,30,0.75);
+  }
+
   :root {
     --primary: #00c78c;
     --primary-dark: #00a873;
@@ -54,7 +58,9 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: var(--surface);
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   box-shadow: none;
   border-bottom: none;
 }
@@ -170,7 +176,9 @@ body {
 
 /* ─── Category Bar ─── */
 .category-bar {
-  background: var(--surface);
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border);
   box-shadow: var(--shadow);
   position: sticky;
