@@ -515,9 +515,9 @@
 
     // Reset
     skipBtn.disabled = true;
-    skipBtn.textContent = '';
     countdown.textContent = '5';
-    skipBtn.appendChild(countdown);
+    countdown.style.display = '';
+    skipBtn.dataset.ready = '';
     dlBtn.style.pointerEvents = 'none';
     dlBtn.style.opacity = '.5';
     dlText.textContent = locale.lang === 'ar' ? 'انتظر...' : 'Wait...';
@@ -547,7 +547,7 @@
       if (sec <= 0) {
         clearInterval(adTimer);
         skipBtn.disabled = false;
-        skipBtn.innerHTML = locale.lang === 'ar' ? 'تخطى ✕' : 'Skip ✕';
+        countdown.textContent = locale.lang === 'ar' ? 'تخطى ✕' : 'Skip ✕';
         dlBtn.style.pointerEvents = '';
         dlBtn.style.opacity = '1';
         dlText.textContent = locale.lang === 'ar' ? 'تحميل اللعبة' : 'Download';
