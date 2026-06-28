@@ -217,7 +217,7 @@
     const el = document.createElement('div');
     el.className = 'game-grid-card';
     el.innerHTML = `
-      <div class="game-grid-thumb-wrap">${imgTag(g.banner, g.name)}</div>
+      <div class="game-grid-thumb-wrap">${imgTag(g.banner || g.icon, g.name)}</div>
       <div class="game-grid-body">
         <div class="game-grid-icon-wrap">${imgTag(g.icon, '')}</div>
         <div class="game-grid-info">
@@ -225,11 +225,7 @@
           <div class="game-grid-dev">${g.dev}</div>
           <div class="game-grid-footer">
             <span class="game-grid-rating">${stars(g.rating)}</span>
-            <span class="game-grid-cat">${g.catLabel || g.cat}</span>
-          </div>
-          <div class="game-grid-size" data-id="${g.id}">
-            <span class="material-icons">download</span>
-            <span class="size-val loading-dots">...</span>
+            <span class="game-grid-free">${g.price || t('free')}</span>
           </div>
         </div>
       </div>`;
