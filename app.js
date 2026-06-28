@@ -356,7 +356,7 @@
     $('modalLabelAndroid').textContent = t('android');
     $('modalAboutTitle').textContent   = t('about');
     if ($('modalScrTitle')) $('modalScrTitle').textContent = t('screenshots');
-    if (g.url) $('modalDownloadBtn').href = g.url;
+    $('modalDownloadBtn').dataset.url = g.url || `https://play.google.com/store/apps/details?id=${g.id}`;
     $('modalOverlay').classList.add('open');
     document.body.style.overflow = 'hidden';
 
@@ -377,7 +377,7 @@
       scr.querySelectorAll('.screenshot-img').forEach(img =>
         img.addEventListener('click', () => openLightbox(scrUrls, +img.dataset.idx))
       );
-      if (d.url) $('modalDownloadBtn').href = d.url;
+      if (d.url) $('modalDownloadBtn').dataset.url = d.url;
     } catch(e) { /* keep initial data */ }
   }
 
@@ -468,13 +468,12 @@
   $('modalClose').addEventListener('click', closeModal);
   $('modalOverlay').addEventListener('click', e => { if (e.target===$('modalOverlay')) closeModal(); });
 
-  // Intercept modal download button → show ad
-  $('modalDownloadBtn').addEventListener('click', e => {
-    e.preventDefault();
-    const href = $('modalDownloadBtn').href;
+  // Modal download button → show ad
+  $('modalDownloadBtn').addEventListener('click', () => {
+    const url  = $('modalDownloadBtn').dataset.url;
     const name = $('modalTitle').textContent;
     closeModal();
-    openAd(href, name);
+    openAd(url, name);
   });
 
   // ─── Ad Interstitial ───
