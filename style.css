@@ -1120,34 +1120,40 @@ body {
   box-shadow: 0 4px 20px rgba(0,0,0,0.25);
 }
 
-/* ─── Ad Interstitial ─── */
+/* ─── Ad Interstitial (Bottom Sheet) ─── */
 .ad-overlay {
   display: none;
   position: fixed;
-  top: 0; left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   z-index: 3000;
-  background: rgba(0,0,0,0.85);
-  overflow: hidden;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  transition: opacity .25s;
 }
-.ad-overlay.open { display: block; }
+.ad-overlay.open {
+  display: block;
+  opacity: 1;
+}
 
 .ad-box {
-  position: absolute;
-  top: 50%;
+  position: fixed;
+  bottom: 0;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%) translateY(100%);
   background: var(--surface);
-  border-radius: 20px;
-  width: calc(100% - 32px);
-  max-width: 520px;
-  height: 80vh;
-  max-height: 600px;
+  border-radius: 20px 20px 0 0;
+  width: 100%;
+  max-width: 640px;
+  height: 88svh;
   overflow: hidden;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.2);
   display: flex;
   flex-direction: column;
+  transition: transform .35s cubic-bezier(.4,0,.2,1);
+}
+.ad-overlay.open .ad-box {
+  transform: translateX(-50%) translateY(0);
 }
 
 .ad-drag-handle {

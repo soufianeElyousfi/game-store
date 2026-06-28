@@ -485,21 +485,6 @@
   const AD_URL = 'https://www.room533games.online';
   let adTimer = null;
 
-  // Sync overlay to visual viewport so address bar never overlaps
-  function syncAdOverlay() {
-    const overlay = $('adOverlay');
-    if (!overlay.classList.contains('open')) return;
-    const vv = window.visualViewport;
-    if (!vv) return;
-    // Move overlay to exactly match the visual viewport
-    overlay.style.top    = vv.offsetTop  + 'px';
-    overlay.style.left   = vv.offsetLeft + 'px';
-    overlay.style.width  = vv.width      + 'px';
-    overlay.style.height = vv.height     + 'px';
-  }
-
-  window.visualViewport?.addEventListener('resize', syncAdOverlay);
-  window.visualViewport?.addEventListener('scroll', syncAdOverlay);
 
   function openAd(gameUrl, gameName) {
     clearInterval(adTimer);
@@ -536,7 +521,6 @@
 
     overlay.classList.add('open');
     document.body.style.overflow = 'hidden';
-    requestAnimationFrame(syncAdOverlay);
 
     // Countdown
     let sec = 5;
@@ -554,73 +538,58 @@
     }, 1000);
   }
 
-  function resetAdOverlayStyle() {
-    const overlay = $('adOverlay');
-    overlay.style.top = overlay.style.left = overlay.style.width = overlay.style.height = '';
-  }
-
-  function closeAd(animate = false) {
+  function closeAd() {
     clearInterval(adTimer);
     const box = document.querySelector('.ad-box');
-    if (animate && box) {
-      box.style.transition = 'transform .3s ease';
-      box.style.transform = 'translate(-50%, 120%)';
-      setTimeout(() => {
-        $('adOverlay').classList.remove('open');
-        $('adFrame').src = '';
-        document.body.style.overflow = '';
-        box.style.transition = '';
-        box.style.transform = '';
-        resetAdOverlayStyle();
-      }, 300);
-    } else {
-      $('adOverlay').classList.remove('open');
+    const overlay = $('adOverlay');
+    if (box) {
+      box.style.transition = 'transform .3s cubic-bezier(.4,0,.2,1)';
+      box.style.transform  = 'translateX(-50%) translateY(100%)';
+    }
+    overlay.style.opacity = '0';
+    setTimeout(() => {
+      overlay.classList.remove('open');
+      overlay.style.opacity = '';
+      if (box) { box.style.transition = ''; box.style.transform = ''; }
       $('adFrame').src = '';
       document.body.style.overflow = '';
-      resetAdOverlayStyle();
-    }
+    }, 300);
   }
 
-  $('adSkipBtn').addEventListener('click', () => closeAd(true));
-  $('adOverlay').addEventListener('click', e => { if (e.target === $('adOverlay')) closeAd(true); });
+  $('adSkipBtn').addEventListener('click', closeAd);
+  $('adOverlay').addEventListener('click', e => { if (e.target === $('adOverlay')) closeAd(); });
 
   // ─── Swipe down to close ad ───
   (function() {
     const box = document.querySelector('.ad-box');
-    let startY = 0;
-    let currentY = 0;
-    let dragging = false;
+    let startY = 0, dragY = 0, dragging = false;
 
     box.addEventListener('pointerdown', e => {
-      // Only drag from header area or if not on iframe
       if (e.target.tagName === 'IFRAME') return;
-      startY = e.clientY;
-      currentY = 0;
-      dragging = true;
+      startY = e.clientY; dragY = 0; dragging = true;
       box.style.transition = 'none';
       box.setPointerCapture(e.pointerId);
     });
 
     box.addEventListener('pointermove', e => {
       if (!dragging) return;
-      currentY = e.clientY - startY;
-      if (currentY < 0) currentY = 0; // no dragging up
-      box.style.transform = `translate(-50%, calc(-50% + ${currentY}px))`;
+      dragY = Math.max(0, e.clientY - startY);
+      box.style.transform = `translateX(-50%) translateY(${dragY}px)`;
     });
 
     function endDrag() {
       if (!dragging) return;
       dragging = false;
-      if (currentY > 120) {
-        closeAd(true);
+      if (dragY > 100) {
+        closeAd();
       } else {
-        box.style.transition = 'transform .25s ease';
-        box.style.transform = 'translate(-50%, -50%)';
+        box.style.transition = 'transform .25s cubic-bezier(.4,0,.2,1)';
+        box.style.transform  = 'translateX(-50%) translateY(0)';
         setTimeout(() => { box.style.transition = ''; }, 250);
       }
     }
 
-    box.addEventListener('pointerup', endDrag);
+    box.addEventListener('pointerup',     endDrag);
     box.addEventListener('pointercancel', endDrag);
   })();
 
