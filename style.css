@@ -913,8 +913,45 @@ body {
 .game-card-icon-wrap .img-wrap { width: 36px; height: 36px; }
 .game-card-icon-wrap .img-wrap::after { font-size: 1.1rem; }
 
-.game-grid-thumb-wrap { width: 100%; height: 140px; overflow: hidden; }
-.game-grid-thumb-wrap .img-wrap { width: 100%; height: 140px; }
+.game-grid-thumb-wrap {
+  width: 100%;
+  height: 140px;
+  overflow: hidden;
+}
+.game-grid-thumb-wrap .img-wrap {
+  width: 100%;
+  height: 140px;
+}
+.game-grid-thumb-wrap .img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Placeholder when no banner: show icon centered on gradient bg */
+.game-grid-thumb-placeholder {
+  background: linear-gradient(135deg, #1a1a2e 0%, #2d3561 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.game-grid-icon-placeholder {
+  width: 72px;
+  height: 72px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+.game-grid-icon-placeholder .img-wrap {
+  width: 72px !important;
+  height: 72px !important;
+}
+.game-grid-icon-placeholder .img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .game-grid-icon-wrap {
   width: 48px; height: 48px; border-radius: 10px; overflow: hidden; flex-shrink: 0;
 }

@@ -216,8 +216,13 @@
   function makeGridCard(g) {
     const el = document.createElement('div');
     el.className = 'game-grid-card';
+    const thumbHtml = g.banner
+      ? `<div class="game-grid-thumb-wrap">${imgTag(g.banner, g.name)}</div>`
+      : `<div class="game-grid-thumb-wrap game-grid-thumb-placeholder">
+           <div class="game-grid-icon-placeholder">${imgTag(g.icon, g.name)}</div>
+         </div>`;
     el.innerHTML = `
-      <div class="game-grid-thumb-wrap">${imgTag(g.banner, g.name)}</div>
+      ${thumbHtml}
       <div class="game-grid-body">
         <div class="game-grid-icon-wrap">${imgTag(g.icon, '')}</div>
         <div class="game-grid-info">

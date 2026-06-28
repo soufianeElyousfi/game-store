@@ -88,7 +88,7 @@ function formatApp(item, catKey, locale) {
     dev:         item.developer,
     cat:         catKey,
     icon:        proxyImg(item.icon),
-    banner:      proxyImg(item.headerImage || item.icon),
+    banner:      proxyImg(item.headerImage || null),
     rating:      item.score ? +item.score.toFixed(1) : 0,
     downloads:   item.installs || '—',
     installs:    item.installs || '—',
