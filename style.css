@@ -635,22 +635,30 @@ body {
 .btn-download:active { transform: scale(0.97); }
 
 /* ─── Play Store Badge Button ─── */
+.modal-dl-wrap {
+  padding: 0 16px 4px;
+}
+
 .btn-playstore {
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  justify-content: center;
+  width: 100%;
   text-decoration: none;
   transition: transform .1s, opacity .2s;
-  flex-shrink: 0;
   background: none;
   border: none;
   padding: 0;
   cursor: pointer;
+  border-radius: 12px;
+  overflow: hidden;
 }
-.btn-playstore:hover { opacity: 0.85; transform: scale(1.03); }
+.btn-playstore:hover { opacity: 0.85; transform: scale(1.02); }
 .btn-playstore:active { transform: scale(0.97); }
 .playstore-badge {
-  height: 44px;
-  width: auto;
+  height: 54px;
+  width: 100%;
+  object-fit: contain;
   display: block;
 }
 
@@ -748,7 +756,6 @@ body {
 .modal-header-info {
   display: flex;
   align-items: flex-start;
-  justify-content: space-between;
   gap: 12px;
   margin-bottom: 20px;
   padding-top: 8px;
