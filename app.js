@@ -365,9 +365,16 @@
     const modal = $('gameModal');
     modal.classList.remove('scrollable');
     modal.style.height = ((window.visualViewport?.height ?? window.innerHeight) * 0.92) + 'px';
-    $('modalOverlay').classList.add('open');
-    document.body.style.overflow = 'hidden';
-    setTimeout(() => modal.classList.add('scrollable'), 400);
+
+    // Start animation first — delay everything else until after
+    requestAnimationFrame(() => {
+      $('modalOverlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    });
+
+    // Wait for animation to finish before fetching + enabling scroll
+    await new Promise(r => setTimeout(r, 420));
+    modal.classList.add('scrollable');
 
     try {
       const json = await apiFetch(`/game/${encodeURIComponent(g.id)}`);

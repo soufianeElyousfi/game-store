@@ -670,7 +670,8 @@ body {
   z-index: 200;
   opacity: 0;
   pointer-events: none;
-  transition: opacity .25s;
+  transition: opacity .2s;
+  contain: strict;
 }
 
 .modal-overlay.open {
@@ -692,6 +693,7 @@ body {
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
   will-change: transform;
+  contain: layout style;
   transition: transform .38s cubic-bezier(.33,1,.68,1);
 }
 
