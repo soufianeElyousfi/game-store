@@ -183,6 +183,61 @@ app.get('/api/featured', async (req, res) => {
   }
 });
 
+// ─── Online Games (GameDistribution scraper) ───
+function fetchUrl(url) {
+  return new Promise((resolve, reject) => {
+    https.get(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Accept': 'application/json',
+      }
+    }, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => resolve(data));
+    }).on('error', reject);
+  });
+}
+
+app.get('/api/online-games', async (req, res) => {
+  try {
+    const limit  = Math.min(parseInt(req.query.limit) || 24, 48);
+    const offset = parseInt(req.query.offset) || 0;
+    const search = req.query.q || '';
+
+    const key = `online:${search}:${limit}:${offset}`;
+    const hit = cache.get(key);
+    if (hit && Date.now() - hit.time < CACHE_TTL) return res.json(hit.data);
+
+    let apiUrl;
+    if (search) {
+      apiUrl = `https://gamedistribution.com/api/games/?search=${encodeURIComponent(search)}&limit=${limit}&offset=${offset}`;
+    } else {
+      apiUrl = `https://gamedistribution.com/api/games/?limit=${limit}&offset=${offset}`;
+    }
+
+    const raw  = await fetchUrl(apiUrl);
+    const json = JSON.parse(raw);
+    const games = (json.results || []).map(g => ({
+      id:          g.uuid,
+      name:        g.title,
+      desc:        g.description || '',
+      thumb:       (g.assets || []).find(a => a.width === 512)?.url ||
+                   (g.assets || [])[0]?.url || '',
+      tags:        (g.categories || []).map(c => c.name),
+      plays:       g.plays || 0,
+      embedUrl:    `https://html5.gamedistribution.com/${g.uuid}/`,
+    }));
+
+    const result = { ok: true, games, total: json.count || 0 };
+    cache.set(key, { data: result, time: Date.now() });
+    res.json(result);
+  } catch (err) {
+    console.error('online-games error:', err.message);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n✅ GameStore API → http://localhost:${PORT}`);
   console.log(`   الموقع         → http://localhost:${PORT}/index.html`);
