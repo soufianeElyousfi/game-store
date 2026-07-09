@@ -792,7 +792,7 @@
   });
 
   // ─── Online Games ───
-  let onlinePage = 0;
+  let onlinePage = 1;
   let onlineLoading = false;
   let onlineExhausted = false;
   let onlineSearchTimeout = null;
@@ -837,22 +837,21 @@
     $('onlineSpinner').style.display = 'block';
 
     if (reset) {
-      onlinePage = 0;
+      onlinePage = 1;
       onlineExhausted = false;
       $('onlineGrid').innerHTML = '';
     }
 
     try {
-      const offset = onlinePage * 24;
       const url = onlineQuery
-        ? `/online-games?q=${encodeURIComponent(onlineQuery)}&limit=24&offset=${offset}`
-        : `/online-games?limit=24&offset=${offset}`;
+        ? `/online-games?q=${encodeURIComponent(onlineQuery)}&page=${onlinePage}`
+        : `/online-games?page=${onlinePage}`;
       const json = await apiFetch(url);
       const games = json.games || [];
 
       if (games.length === 0) {
         onlineExhausted = true;
-        if (onlinePage === 0) {
+        if (onlinePage === 1) {
           $('onlineGrid').innerHTML = `<div class="no-results" style="grid-column:1/-1">
             <span class="material-icons">sports_esports</span>
             <p>لا توجد نتائج</p></div>`;

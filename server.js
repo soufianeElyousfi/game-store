@@ -184,14 +184,21 @@ app.get('/api/featured', async (req, res) => {
 });
 
 // ─── Online Games (GameDistribution scraper) ───
-function fetchUrl(url) {
+function fetchUrl(url, depth = 0) {
+  if (depth > 5) return Promise.reject(new Error('Too many redirects'));
   return new Promise((resolve, reject) => {
-    https.get(url, {
+    const mod = url.startsWith('https') ? https : http;
+    mod.get(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        'Accept': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/json,*/*',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Cache-Control': 'no-cache',
       }
     }, (res) => {
+      if ((res.statusCode === 301 || res.statusCode === 302) && res.headers.location) {
+        return fetchUrl(res.headers.location, depth + 1).then(resolve).catch(reject);
+      }
       let data = '';
       res.on('data', chunk => data += chunk);
       res.on('end', () => resolve(data));
@@ -199,38 +206,51 @@ function fetchUrl(url) {
   });
 }
 
+// ─── itch.io HTML5 scraper ───
+function parseItchGames(html) {
+  const games = [];
+  // Split on full game_cell opening (not game_cell_data / game_cell_tools)
+  const cells = html.split(/(?=<div[^>]+data-game_id=")/);
+  for (let i = 0; i < cells.length; i++) {
+    const cell = cells[i];
+    const idMatch    = cell.match(/data-game_id="(\d+)"/);
+    if (!idMatch) continue;
+    const thumbMatch = cell.match(/data-lazy_src="([^"]+)"/);
+    const titleMatch = cell.match(/class="title game_link"[^>]*>([^<]+)</);
+    const devMatch   = cell.match(/class="game_author"[^>]*>[^<]*<a[^>]*>([^<]+)</);
+    const genreMatch = cell.match(/class="[^"]*genre[^"]*"[^>]*>([^<]+)</);
+    if (idMatch && titleMatch) {
+      games.push({
+        id:       idMatch[1],
+        name:     titleMatch[1].trim(),
+        dev:      devMatch ? devMatch[1].trim() : '',
+        thumb:    thumbMatch ? thumbMatch[1] : '',
+        tags:     genreMatch ? [genreMatch[1].trim()] : [],
+        embedUrl: `https://itch.io/embed/${idMatch[1]}?dark=true&linkback=false`,
+      });
+    }
+  }
+  return games;
+}
+
 app.get('/api/online-games', async (req, res) => {
   try {
-    const limit  = Math.min(parseInt(req.query.limit) || 24, 50);
-    const offset = parseInt(req.query.offset) || 0;
-    const search = req.query.q || '';
+    const page   = Math.max(1, parseInt(req.query.page) || 1);
+    const search = (req.query.q || '').trim();
 
-    const key = `online:${search}:${limit}:${offset}`;
+    const key = `online:${search}:${page}`;
     const hit = cache.get(key);
     if (hit && Date.now() - hit.time < CACHE_TTL) return res.json(hit.data);
 
-    // GameMonetize — free embeddable HTML5 games API
-    const apiUrl = `https://gamemonetize.com/feed.php?format=0&num=${limit}&start=${offset}`;
-    const raw  = await fetchUrl(apiUrl);
-    const json = JSON.parse(raw);
-
-    let games = (Array.isArray(json) ? json : []).map(g => ({
-      id:       g.id || g.url,
-      name:     g.title,
-      desc:     g.description || '',
-      thumb:    g.thumb || g.image || '',
-      tags:     g.category ? [g.category] : [],
-      embedUrl: g.url,
-    }));
-
-    // Client-side search filter (API doesn't support search param)
+    let url;
     if (search) {
-      const q = search.toLowerCase();
-      games = games.filter(g =>
-        g.name.toLowerCase().includes(q) ||
-        g.tags.some(t => t.toLowerCase().includes(q))
-      );
+      url = `https://itch.io/games/format:html?q=${encodeURIComponent(search)}&page=${page}`;
+    } else {
+      url = `https://itch.io/games/top-rated/format:html?page=${page}`;
     }
+
+    const html  = await fetchUrl(url);
+    const games = parseItchGames(html);
 
     const result = { ok: true, games };
     cache.set(key, { data: result, time: Date.now() });
