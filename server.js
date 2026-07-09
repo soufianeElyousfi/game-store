@@ -201,7 +201,7 @@ function fetchUrl(url) {
 
 app.get('/api/online-games', async (req, res) => {
   try {
-    const limit  = Math.min(parseInt(req.query.limit) || 24, 48);
+    const limit  = Math.min(parseInt(req.query.limit) || 24, 50);
     const offset = parseInt(req.query.offset) || 0;
     const search = req.query.q || '';
 
@@ -209,27 +209,30 @@ app.get('/api/online-games', async (req, res) => {
     const hit = cache.get(key);
     if (hit && Date.now() - hit.time < CACHE_TTL) return res.json(hit.data);
 
-    let apiUrl;
-    if (search) {
-      apiUrl = `https://gamedistribution.com/api/games/?search=${encodeURIComponent(search)}&limit=${limit}&offset=${offset}`;
-    } else {
-      apiUrl = `https://gamedistribution.com/api/games/?limit=${limit}&offset=${offset}`;
-    }
-
+    // GameMonetize — free embeddable HTML5 games API
+    const apiUrl = `https://gamemonetize.com/feed.php?format=0&num=${limit}&start=${offset}`;
     const raw  = await fetchUrl(apiUrl);
     const json = JSON.parse(raw);
-    const games = (json.results || []).map(g => ({
-      id:          g.uuid,
-      name:        g.title,
-      desc:        g.description || '',
-      thumb:       (g.assets || []).find(a => a.width === 512)?.url ||
-                   (g.assets || [])[0]?.url || '',
-      tags:        (g.categories || []).map(c => c.name),
-      plays:       g.plays || 0,
-      embedUrl:    `https://html5.gamedistribution.com/${g.uuid}/`,
+
+    let games = (Array.isArray(json) ? json : []).map(g => ({
+      id:       g.id || g.url,
+      name:     g.title,
+      desc:     g.description || '',
+      thumb:    g.thumb || g.image || '',
+      tags:     g.category ? [g.category] : [],
+      embedUrl: g.url,
     }));
 
-    const result = { ok: true, games, total: json.count || 0 };
+    // Client-side search filter (API doesn't support search param)
+    if (search) {
+      const q = search.toLowerCase();
+      games = games.filter(g =>
+        g.name.toLowerCase().includes(q) ||
+        g.tags.some(t => t.toLowerCase().includes(q))
+      );
+    }
+
+    const result = { ok: true, games };
     cache.set(key, { data: result, time: Date.now() });
     res.json(result);
   } catch (err) {
