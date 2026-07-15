@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="120" fill="#10b981"/>
+  <g fill="white">
+    <!-- Controller body -->
+    <path d="M96 200 C96 168 120 148 152 148 L360 148 C392 148 416 168 416 200 L416 312 C416 344 392 364 360 364 L152 364 C120 364 96 344 96 312 Z"/>
+    <!-- Left cross -->
+    <rect x="148" y="224" width="20" height="64" rx="4" fill="#10b981"/>
+    <rect x="124" y="248" width="68" height="20" rx="4" fill="#10b981"/>
+    <!-- Right buttons -->
+    <circle cx="340" cy="236" r="14" fill="#10b981"/>
+    <circle cx="312" cy="264" r="14" fill="#10b981"/>
+    <circle cx="368" cy="264" r="14" fill="#10b981"/>
+    <circle cx="340" cy="292" r="14" fill="#10b981"/>
+    <!-- Center buttons -->
+    <circle cx="228" cy="256" r="10" fill="#10b981"/>
+    <circle cx="264" cy="256" r="10" fill="#10b981"/>
+    <!-- Analog sticks -->
+    <circle cx="196" cy="300" r="22" fill="#10b981"/>
+    <circle cx="316" cy="300" r="22" fill="#10b981"/>
+    <!-- Shoulder bumps -->
+    <path d="M140 148 L180 120 L332 120 L372 148" stroke="white" stroke-width="20" fill="none" stroke-linecap="round"/>
+  </g>
+</svg>

@@ -239,6 +239,65 @@ app.get('/api/featured', async (req, res) => {
 
 
 
+// ─── Movies (YTS) ───
+function fetchJson(url) {
+  return new Promise((resolve, reject) => {
+    https.get(url, { headers: { 'User-Agent': 'Mozilla/5.0' } }, (res) => {
+      let data = '';
+      res.on('data', c => data += c);
+      res.on('end', () => {
+        try { resolve(JSON.parse(data)); } catch(e) { reject(e); }
+      });
+    }).on('error', reject);
+  });
+}
+
+const MOVIE_GENRES = ['action','adventure','animation','comedy','crime','drama','fantasy','horror','mystery','romance','sci-fi','thriller'];
+
+const movieCache = new Map();
+function movieCached(key, fn) {
+  const hit = movieCache.get(key);
+  if (hit && Date.now() - hit.time < 15 * 60 * 1000) return Promise.resolve(hit.data);
+  return fn().then(data => { movieCache.set(key, { data, time: Date.now() }); return data; });
+}
+
+// GET /api/movies?genre=action&page=1&sort=rating&q=batman
+app.get('/api/movies', async (req, res) => {
+  try {
+    const genre  = req.query.genre || '';
+    const page   = Math.max(1, parseInt(req.query.page) || 1);
+    const sort   = ['rating','year','download_count','like_count','date_added'].includes(req.query.sort) ? req.query.sort : 'rating';
+    const q      = req.query.q || '';
+    const limit  = 20;
+
+    let url = `https://yts.mx/api/v2/list_movies.json?limit=${limit}&page=${page}&sort_by=${sort}&minimum_rating=6&order_by=desc`;
+    if (genre && MOVIE_GENRES.includes(genre)) url += `&genre=${genre}`;
+    if (q) url += `&query_term=${encodeURIComponent(q)}`;
+
+    const key  = `movies:${genre}:${page}:${sort}:${q}`;
+    const data = await movieCached(key, () => fetchJson(url));
+
+    const movies = (data.data?.movies || []).map(m => ({
+      id:       m.id,
+      title:    m.title,
+      year:     m.year,
+      rating:   m.rating,
+      genres:   m.genres || [],
+      summary:  m.summary || '',
+      cover:    m.large_cover_image || m.medium_cover_image || '',
+      bg:       m.background_image_original || m.background_image || '',
+      trailer:  m.yt_trailer_code ? `https://www.youtube.com/watch?v=${m.yt_trailer_code}` : null,
+      runtime:  m.runtime || 0,
+      language: m.language || 'en',
+    }));
+
+    res.json({ ok: true, movies, total: data.data?.movie_count || 0, page });
+  } catch (err) {
+    console.error('movies error:', err.message);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n✅ GameStore API → http://localhost:${PORT}`);
   console.log(`   الموقع         → http://localhost:${PORT}/index.html`);

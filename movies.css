@@ -1,0 +1,141 @@
+/* ─── Bottom Nav ─── */
+.bottom-nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 200;
+  background: var(--surface);
+  border-top: 1.5px solid var(--border);
+  display: flex;
+  height: 60px;
+}
+.bottom-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  text-decoration: none;
+  color: var(--text3);
+  font-size: 11px;
+  font-family: 'Tajawal', sans-serif;
+  font-weight: 600;
+  transition: color .2s;
+}
+.bottom-nav-item .material-icons { font-size: 22px; }
+.bottom-nav-item.active { color: var(--primary); }
+
+/* ─── Search Bar ─── */
+.movies-searchbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--surface);
+  border-bottom: 1.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  gap: 10px;
+}
+.movies-searchbar .search-icon { color: var(--text3); font-size: 20px; }
+.movies-searchbar input {
+  flex: 1;
+  border: none;
+  background: none;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 15px;
+  color: var(--text);
+  outline: none;
+}
+.movies-searchbar input::placeholder { color: var(--text3); }
+.movies-searchbar .search-clear {
+  background: none; border: none; cursor: pointer;
+  color: var(--text3); display: flex; align-items: center;
+}
+
+/* ─── Movies Main ─── */
+.movies-main {
+  padding-bottom: 80px;
+}
+
+/* ─── Movies Grid ─── */
+.movies-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 14px;
+  padding: 0 16px 16px;
+}
+
+/* ─── Movie Card ─── */
+.movie-card {
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: transform .2s, box-shadow .2s;
+}
+.movie-card:active { transform: scale(.97); }
+.movie-card-poster {
+  width: 100%;
+  aspect-ratio: 2/3;
+  object-fit: cover;
+  display: block;
+  background: var(--skeleton-base);
+}
+.movie-card-info {
+  padding: 8px 10px;
+}
+.movie-card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.movie-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+.movie-card-rating {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--star);
+}
+.movie-card-rating .material-icons { font-size: 13px; }
+.movie-card-year {
+  font-size: 11px;
+  color: var(--text3);
+}
+
+/* ─── Skeleton ─── */
+.movie-card.skeleton .movie-card-poster {
+  animation: shimmer 1.4s infinite linear;
+  background: linear-gradient(90deg, var(--skeleton-base) 25%, var(--skeleton-shine) 50%, var(--skeleton-base) 75%);
+  background-size: 200% 100%;
+}
+.movie-card.skeleton .movie-card-title,
+.movie-card.skeleton .movie-card-meta {
+  background: var(--skeleton-base);
+  border-radius: 6px;
+  color: transparent;
+  animation: shimmer 1.4s infinite linear;
+  background-size: 200% 100%;
+  background-image: linear-gradient(90deg, var(--skeleton-base) 25%, var(--skeleton-shine) 50%, var(--skeleton-base) 75%);
+}
+
+/* ─── Modal poster ─── */
+.movie-poster-wrap img {
+  width: 90px;
+  height: 130px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: var(--shadow-md);
+  border: 2px solid var(--surface);
+}

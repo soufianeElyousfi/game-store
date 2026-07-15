@@ -50,7 +50,7 @@ body {
   color: var(--text);
   min-height: 100vh;
   padding-top: 0;
-  padding-bottom: var(--header-h, 65px);
+  padding-bottom: 60px;
 }
 
 /* ─── Header ─── */

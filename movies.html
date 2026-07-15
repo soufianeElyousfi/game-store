@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>أفلام — GameStore</title>
+  <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#10b981" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="movies.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- Bottom Nav Bar -->
+  <nav class="bottom-nav">
+    <a class="bottom-nav-item" href="/">
+      <span class="material-icons">sports_esports</span>
+      <span>ألعاب</span>
+    </a>
+    <a class="bottom-nav-item active" href="/movies.html">
+      <span class="material-icons">movie</span>
+      <span>أفلام</span>
+    </a>
+  </nav>
+
+  <!-- Search Bar -->
+  <div class="movies-searchbar">
+    <span class="material-icons search-icon">search</span>
+    <input type="text" id="movieSearch" placeholder="ابحث عن فيلم..." />
+    <button class="search-clear" id="clearSearch" style="display:none">
+      <span class="material-icons">close</span>
+    </button>
+  </div>
+
+  <!-- Genre Bar -->
+  <nav class="category-bar" id="genreBar">
+    <div class="categories">
+      <button class="cat-btn active" data-genre="">الكل</button>
+      <button class="cat-btn" data-genre="action">أكشن</button>
+      <button class="cat-btn" data-genre="adventure">مغامرة</button>
+      <button class="cat-btn" data-genre="animation">رسوم متحركة</button>
+      <button class="cat-btn" data-genre="comedy">كوميدي</button>
+      <button class="cat-btn" data-genre="crime">جريمة</button>
+      <button class="cat-btn" data-genre="drama">دراما</button>
+      <button class="cat-btn" data-genre="fantasy">خيال</button>
+      <button class="cat-btn" data-genre="horror">رعب</button>
+      <button class="cat-btn" data-genre="sci-fi">خيال علمي</button>
+      <button class="cat-btn" data-genre="thriller">إثارة</button>
+    </div>
+  </nav>
+
+  <main class="main movies-main">
+
+    <!-- Featured Movie Hero -->
+    <section class="hero-section" id="heroSection">
+      <div class="hero-card" id="heroMovie">
+        <div class="hero-bg" id="heroBg"></div>
+        <div class="hero-content">
+          <div class="hero-badge">مميز</div>
+          <h2 class="hero-title" id="heroTitle"></h2>
+          <div class="hero-meta">
+            <span class="hero-rating" id="heroRating"></span>
+            <span class="hero-size" id="heroYear"></span>
+          </div>
+          <p class="hero-desc" id="heroDesc"></p>
+          <button class="btn-download hero-btn" id="heroInfoBtn">
+            <span class="material-icons">info</span>
+            <span>التفاصيل</span>
+          </button>
+        </div>
+        <div class="hero-indicators" id="heroIndicators"></div>
+      </div>
+    </section>
+
+    <!-- Sort Bar -->
+    <div class="sort-bar" id="sortBar" style="padding:0 16px 8px">
+      <button class="sort-btn active" data-sort="rating"><span class="material-icons">star</span><span class="sort-label">التقييم</span></button>
+      <button class="sort-btn" data-sort="year"><span class="material-icons">calendar_today</span><span class="sort-label">السنة</span></button>
+      <button class="sort-btn" data-sort="download_count"><span class="material-icons">download</span><span class="sort-label">الأكثر تحميلاً</span></button>
+    </div>
+
+    <!-- Movies Grid -->
+    <section class="section">
+      <div class="movies-grid" id="moviesGrid"></div>
+      <div id="infiniteSentinel" style="height:1px;margin-top:16px;"></div>
+      <div id="infiniteSpinner" style="display:none;text-align:center;padding:20px;">
+        <span class="material-icons" style="font-size:28px;color:var(--primary);animation:spin 1s linear infinite;">refresh</span>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Movie Detail Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="movieModal">
+      <button class="modal-close" id="modalClose">
+        <span class="material-icons">close</span>
+      </button>
+      <div class="modal-hero">
+        <div class="modal-hero-bg" id="modalBg"></div>
+        <div class="modal-icon movie-poster-wrap" id="modalIcon"></div>
+      </div>
+      <div class="modal-body">
+        <div class="modal-header-info">
+          <div>
+            <h2 class="modal-title" id="modalTitle"></h2>
+            <p class="modal-dev" id="modalMeta"></p>
+          </div>
+        </div>
+        <div class="modal-stats">
+          <div class="stat">
+            <span class="material-icons stat-icon">star</span>
+            <span class="stat-val" id="modalRating"></span>
+            <span class="stat-label">التقييم</span>
+          </div>
+          <div class="stat">
+            <span class="material-icons stat-icon">calendar_today</span>
+            <span class="stat-val" id="modalYear"></span>
+            <span class="stat-label">السنة</span>
+          </div>
+          <div class="stat">
+            <span class="material-icons stat-icon">schedule</span>
+            <span class="stat-val" id="modalRuntime"></span>
+            <span class="stat-label">المدة</span>
+          </div>
+          <div class="stat">
+            <span class="material-icons stat-icon">language</span>
+            <span class="stat-val" id="modalLang"></span>
+            <span class="stat-label">اللغة</span>
+          </div>
+        </div>
+        <div class="modal-dl-wrap" id="trailerWrap" style="display:none">
+          <a class="btn-playstore modal-dl-btn" id="trailerBtn" href="#" target="_blank" rel="noopener">
+            <span class="material-icons" style="color:#ff0000;font-size:28px">play_circle</span>
+            <span style="font-size:14px;font-weight:700">مشاهدة الإعلان</span>
+          </a>
+        </div>
+        <div class="modal-desc-section">
+          <h4>عن الفيلم</h4>
+          <p id="modalDesc"></p>
+        </div>
+        <div class="modal-tags" id="modalTags"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="movies.js"></script>
+</body>
+</html>
