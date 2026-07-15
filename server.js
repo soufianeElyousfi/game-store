@@ -20,7 +20,7 @@ app.get('/img', (req, res) => {
   const mod = url.startsWith('https') ? https : http;
   mod.get(url, { headers: { 'User-Agent': 'Mozilla/5.0' } }, (imgRes) => {
     res.setHeader('Content-Type', imgRes.headers['content-type'] || 'image/webp');
-    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.setHeader('Cache-Control', 'public, max-age=604800, immutable');
     imgRes.pipe(res);
   }).on('error', () => res.status(502).end());
 });
@@ -78,6 +78,10 @@ const CATEGORIES = {
 
 function proxyImg(url) {
   if (!url) return null;
+  // Google Play / Google CDN images support CORS — use directly (no proxy latency)
+  if (url.includes('googleusercontent.com') || url.includes('ggpht.com') || url.includes('play-lh.')) {
+    return url;
+  }
   return `/img?url=${encodeURIComponent(url)}`;
 }
 

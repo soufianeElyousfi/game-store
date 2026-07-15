@@ -130,7 +130,7 @@
   function imgTag(src, alt, cls) {
     if (!src) return `<div class="img-wrap failed" style="width:100%;height:100%;"></div>`;
     return `<div class="img-wrap">
-      <img src="${src}" alt="${alt || ''}" class="${cls || ''}" loading="lazy"
+      <img src="${src}" alt="${alt || ''}" class="${cls || ''}" loading="lazy" decoding="async"
         onerror="this.classList.add('hidden');this.parentElement.classList.add('failed')" />
     </div>`;
   }
