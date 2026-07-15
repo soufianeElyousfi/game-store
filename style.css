@@ -49,16 +49,19 @@ body {
   background: var(--surface3);
   color: var(--text);
   min-height: 100vh;
-  padding-top: var(--header-h, 65px);
+  padding-top: 0;
+  padding-bottom: var(--header-h, 65px);
 }
 
 /* ─── Header ─── */
 .header {
   position: fixed;
-  top: 0; left: 0; right: 0;
+  bottom: 0; left: 0; right: 0;
+  top: auto;
   z-index: 100;
   background: var(--surface);
-  border-bottom: 1.5px solid var(--border);
+  border-top: 1.5px solid var(--border);
+  border-bottom: none;
 }
 
 .header-inner {
@@ -172,7 +175,7 @@ body {
   background: var(--surface);
   border-bottom: 1.5px solid var(--border);
   position: sticky;
-  top: var(--header-h, 65px);
+  top: 0;
   z-index: 99;
 }
 
