@@ -114,6 +114,23 @@ app.get('/api/locale', (req, res) => {
   res.json(detectLocale(req));
 });
 
+// Rotate collections so users see different games on each visit
+const COLLECTIONS = [
+  gplay.collection.TOP_FREE,
+  gplay.collection.TOP_NEW_FREE,
+  gplay.collection.GROSSING,
+  gplay.collection.NEW_FREE,
+];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 // GET /api/games?cat=action&limit=20&offset=0
 app.get('/api/games', async (req, res) => {
   try {
@@ -123,13 +140,18 @@ app.get('/api/games', async (req, res) => {
     const offset  = parseInt(req.query.offset) || 0;
     const gcat    = CATEGORIES[catKey] || gplay.category.GAME;
 
-    // Fetch enough to cover offset + limit (max 100)
-    const fetchNum = Math.min(offset + limit, 100);
-    const key = `list:${catKey}:${fetchNum}:${locale.lang}`;
+    // Pick a random collection — rotates every cache window so each visit feels fresh
+    const col = COLLECTIONS[Math.floor(Date.now() / CACHE_TTL) % COLLECTIONS.length];
+
+    const fetchNum = Math.min(offset + limit + 50, 100);
+    const key = `list:${catKey}:${col}:${locale.lang}`;
     const apps = await cached(key, () =>
-      gplay.list({ category: gcat, collection: gplay.collection.TOP_FREE, num: fetchNum, lang: locale.lang, country: locale.country, fullDetail: true })
+      gplay.list({ category: gcat, collection: col, num: fetchNum, lang: locale.lang, country: locale.country, fullDetail: true })
     );
-    const slice = apps.slice(offset, offset + limit);
+
+    // Shuffle so order differs each time cache is warm
+    const pool = offset === 0 ? shuffle(apps) : apps;
+    const slice = pool.slice(offset, offset + limit);
     res.json({ ok: true, games: slice.map(a => formatApp(a, catKey, locale)), locale });
   } catch (err) {
     console.error('list error:', err.message);
