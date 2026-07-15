@@ -1,5 +1,5 @@
 (() => {
-  const API = '/api/movies';
+  const API = 'https://yts.mx/api/v2/list_movies.json';
 
   let currentGenre = '';
   let currentSort  = 'rating';
@@ -90,15 +90,19 @@
     $('infiniteSpinner').style.display = 'block';
 
     const params = new URLSearchParams({
+      limit: 20,
       page: currentPage,
-      sort: currentSort,
+      sort_by: currentSort,
+      minimum_rating: 6,
+      order_by: 'desc',
       ...(currentGenre && { genre: currentGenre }),
-      ...(searchQuery  && { q: searchQuery }),
+      ...(searchQuery  && { query_term: searchQuery }),
     });
 
     try {
       const res  = await fetch(`${API}?${params}`);
-      const data = await res.json();
+      const raw  = await res.json();
+      const data = { ok: true, movies: raw.data?.movies || [] };
 
       if (!data.ok || !data.movies?.length) {
         exhausted = true;
