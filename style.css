@@ -1047,3 +1047,72 @@ body {
   font-size: 13px; font-weight: 700; transition: opacity .2s; white-space: nowrap;
 }
 .ad-dl-btn:hover { opacity: .85; }
+
+/* ─── PWA Install Banner ─── */
+.install-banner {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(120px);
+  z-index: 2000;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 18px;
+  box-shadow: var(--shadow-lg);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: calc(100% - 32px);
+  max-width: 420px;
+  transition: transform .4s cubic-bezier(.33,1,.68,1);
+}
+.install-banner.show {
+  transform: translateX(-50%) translateY(0);
+}
+.install-banner-icon {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  flex-shrink: 0;
+  background: #10b981;
+}
+.install-banner-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.install-banner-text strong {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text);
+}
+.install-banner-text span {
+  font-size: 12px;
+  color: var(--text2);
+}
+.install-banner-btn {
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: opacity .2s;
+}
+.install-banner-btn:hover { opacity: .85; }
+.install-banner-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text3);
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  flex-shrink: 0;
+}
+.install-banner-close .material-icons { font-size: 18px; }

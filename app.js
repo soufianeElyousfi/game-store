@@ -791,4 +791,39 @@
       <p>${t('offline')}</p></div>`;
   });
 
+  // ─── PWA Install Banner ───
+  let deferredPrompt = null;
+  const installBanner = $('installBanner');
+  const installBtn    = $('installBtn');
+  const installClose  = $('installClose');
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    // Show banner after short delay
+    setTimeout(() => installBanner && installBanner.classList.add('show'), 1500);
+  });
+
+  if (installBtn) {
+    installBtn.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      installBanner.classList.remove('show');
+    });
+  }
+
+  if (installClose) {
+    installClose.addEventListener('click', () => {
+      installBanner.classList.remove('show');
+      deferredPrompt = null;
+    });
+  }
+
+  window.addEventListener('appinstalled', () => {
+    installBanner.classList.remove('show');
+    deferredPrompt = null;
+  });
+
 })();
