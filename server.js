@@ -221,11 +221,16 @@ app.get('/api/search', async (req, res) => {
 app.get('/api/featured', async (req, res) => {
   try {
     const locale = detectLocale(req);
-    const key    = `featured:${locale.lang}`;
-    const apps   = await cached(key, () =>
-      gplay.list({ category: gplay.category.GAME, collection: gplay.collection.GROSSING, num: 6, lang: locale.lang, country: locale.country, fullDetail: true })
+    // Rotate between collections for variety
+    const col = COLLECTIONS[Math.floor(Date.now() / CACHE_TTL) % COLLECTIONS.length];
+    const key = `featured:${col}:${locale.lang}`;
+    const apps = await cached(key, () =>
+      gplay.list({ category: gplay.category.GAME, collection: col, num: 50, lang: locale.lang, country: locale.country, fullDetail: true })
     );
-    res.json({ ok: true, games: apps.map(a => formatApp(a, 'all', locale)), locale });
+    // Filter quality then pick 6 random ones
+    const quality = apps.filter(isHighQuality);
+    const picked  = shuffle(quality).slice(0, 6);
+    res.json({ ok: true, games: picked.map(a => formatApp(a, 'all', locale)), locale });
   } catch (err) {
     console.error('featured error:', err.message);
     res.status(500).json({ ok: false, error: err.message });
