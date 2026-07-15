@@ -131,6 +131,21 @@ function shuffle(arr) {
   return a;
 }
 
+// Parse installs string like "10,000,000+" → number
+function parseInstalls(str) {
+  if (!str) return 0;
+  return parseInt(str.replace(/[^0-9]/g, '')) || 0;
+}
+
+// Filter for high-quality games only
+function isHighQuality(app) {
+  const rating   = app.score || 0;
+  const installs = parseInstalls(app.installs);
+  const hasIcon  = !!app.icon;
+  const hasShots = Array.isArray(app.screenshots) && app.screenshots.length >= 3;
+  return rating >= 4.0 && installs >= 1_000_000 && hasIcon && hasShots;
+}
+
 // GET /api/games?cat=action&limit=20&offset=0
 app.get('/api/games', async (req, res) => {
   try {
@@ -140,17 +155,25 @@ app.get('/api/games', async (req, res) => {
     const offset  = parseInt(req.query.offset) || 0;
     const gcat    = CATEGORIES[catKey] || gplay.category.GAME;
 
-    // Pick a random collection — rotates every cache window so each visit feels fresh
-    const col = COLLECTIONS[Math.floor(Date.now() / CACHE_TTL) % COLLECTIONS.length];
+    // Fetch from all collections and merge for better quality pool
+    const keys = COLLECTIONS.map(col => `list:${catKey}:${col}:${locale.lang}`);
+    const col  = COLLECTIONS[Math.floor(Date.now() / CACHE_TTL) % COLLECTIONS.length];
 
-    const fetchNum = Math.min(offset + limit + 50, 100);
     const key = `list:${catKey}:${col}:${locale.lang}`;
     const apps = await cached(key, () =>
-      gplay.list({ category: gcat, collection: col, num: fetchNum, lang: locale.lang, country: locale.country, fullDetail: true })
+      gplay.list({ category: gcat, collection: col, num: 100, lang: locale.lang, country: locale.country, fullDetail: true })
     );
 
-    // Shuffle so order differs each time cache is warm
-    const pool = offset === 0 ? shuffle(apps) : apps;
+    // Keep only high-quality games, sort by rating × log(installs)
+    const quality = apps
+      .filter(isHighQuality)
+      .sort((a, b) => {
+        const scoreA = (a.score || 0) * Math.log10(parseInstalls(a.installs) + 1);
+        const scoreB = (b.score || 0) * Math.log10(parseInstalls(b.installs) + 1);
+        return scoreB - scoreA;
+      });
+
+    const pool  = offset === 0 ? shuffle(quality) : quality;
     const slice = pool.slice(offset, offset + limit);
     res.json({ ok: true, games: slice.map(a => formatApp(a, catKey, locale)), locale });
   } catch (err) {
