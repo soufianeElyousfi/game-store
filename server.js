@@ -239,20 +239,16 @@ app.get('/api/featured', async (req, res) => {
 
 
 
-// ─── Movies (YTS) ───
-function fetchJson(url) {
-  return new Promise((resolve, reject) => {
-    https.get(url, { headers: { 'User-Agent': 'Mozilla/5.0' } }, (res) => {
-      let data = '';
-      res.on('data', c => data += c);
-      res.on('end', () => {
-        try { resolve(JSON.parse(data)); } catch(e) { reject(e); }
-      });
-    }).on('error', reject);
-  });
-}
+// ─── Movies (TMDB) ───
+const TMDB_TOKEN = process.env.TMDB_TOKEN || '';
+const TMDB_IMG  = 'https://image.tmdb.org/t/p/w500';
+const TMDB_BG   = 'https://image.tmdb.org/t/p/w1280';
 
-const MOVIE_GENRES = ['action','adventure','animation','comedy','crime','drama','fantasy','horror','mystery','romance','sci-fi','thriller'];
+const TMDB_GENRES = {
+  action: 28, adventure: 12, animation: 16, comedy: 35,
+  crime: 80, drama: 18, fantasy: 14, horror: 27,
+  romance: 10749, 'sci-fi': 878, thriller: 53,
+};
 
 const movieCache = new Map();
 function movieCached(key, fn) {
@@ -261,37 +257,57 @@ function movieCached(key, fn) {
   return fn().then(data => { movieCache.set(key, { data, time: Date.now() }); return data; });
 }
 
+function tmdbFetch(path) {
+  return new Promise((resolve, reject) => {
+    const url = `https://api.themoviedb.org/3${path}`;
+    https.get(url, {
+      headers: { Authorization: `Bearer ${TMDB_TOKEN}`, Accept: 'application/json' }
+    }, (r) => {
+      let d = '';
+      r.on('data', c => d += c);
+      r.on('end', () => { try { resolve(JSON.parse(d)); } catch(e) { reject(e); } });
+    }).on('error', reject);
+  });
+}
+
+function formatMovie(m) {
+  return {
+    id:      m.id,
+    title:   m.title,
+    year:    m.release_date ? m.release_date.slice(0, 4) : '—',
+    rating:  m.vote_average ? +m.vote_average.toFixed(1) : 0,
+    genres:  [],
+    summary: m.overview || '',
+    cover:   m.poster_path   ? TMDB_IMG + m.poster_path   : '',
+    bg:      m.backdrop_path ? TMDB_BG  + m.backdrop_path : '',
+    trailer: null,
+    runtime: m.runtime || 0,
+    language: m.original_language || 'en',
+  };
+}
+
 // GET /api/movies?genre=action&page=1&sort=rating&q=batman
 app.get('/api/movies', async (req, res) => {
   try {
-    const genre  = req.query.genre || '';
-    const page   = Math.max(1, parseInt(req.query.page) || 1);
-    const sort   = ['rating','year','download_count','like_count','date_added'].includes(req.query.sort) ? req.query.sort : 'rating';
-    const q      = req.query.q || '';
-    const limit  = 20;
+    const genre = req.query.genre || '';
+    const page  = Math.max(1, parseInt(req.query.page) || 1);
+    const sort  = req.query.sort === 'year' ? 'primary_release_date' : 'vote_average';
+    const q     = req.query.q || '';
 
-    let url = `https://yts.mx/api/v2/list_movies.json?limit=${limit}&page=${page}&sort_by=${sort}&minimum_rating=6&order_by=desc`;
-    if (genre && MOVIE_GENRES.includes(genre)) url += `&genre=${genre}`;
-    if (q) url += `&query_term=${encodeURIComponent(q)}`;
+    let data;
+    if (q) {
+      const key = `movies:search:${q}:${page}`;
+      data = await movieCached(key, () => tmdbFetch(`/search/movie?query=${encodeURIComponent(q)}&page=${page}&language=ar-SA`));
+    } else {
+      const genreId = TMDB_GENRES[genre] || '';
+      const key = `movies:${genre}:${page}:${sort}`;
+      data = await movieCached(key, () =>
+        tmdbFetch(`/discover/movie?sort_by=${sort}.desc&vote_count.gte=500&vote_average.gte=6&page=${page}&language=ar-SA${genreId ? `&with_genres=${genreId}` : ''}`)
+      );
+    }
 
-    const key  = `movies:${genre}:${page}:${sort}:${q}`;
-    const data = await movieCached(key, () => fetchJson(url));
-
-    const movies = (data.data?.movies || []).map(m => ({
-      id:       m.id,
-      title:    m.title,
-      year:     m.year,
-      rating:   m.rating,
-      genres:   m.genres || [],
-      summary:  m.summary || '',
-      cover:    m.large_cover_image || m.medium_cover_image || '',
-      bg:       m.background_image_original || m.background_image || '',
-      trailer:  m.yt_trailer_code ? `https://www.youtube.com/watch?v=${m.yt_trailer_code}` : null,
-      runtime:  m.runtime || 0,
-      language: m.language || 'en',
-    }));
-
-    res.json({ ok: true, movies, total: data.data?.movie_count || 0, page });
+    const movies = (data.results || []).map(formatMovie);
+    res.json({ ok: true, movies, total: data.total_results || 0, page });
   } catch (err) {
     console.error('movies error:', err.message);
     res.status(500).json({ ok: false, error: err.message });
