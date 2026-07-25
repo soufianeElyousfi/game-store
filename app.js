@@ -784,7 +784,19 @@
     const deals = dealsJson.games || [];
     if (deals.length > 0) {
       $('dealsSection').style.display = '';
-      renderRow('dealsGames', deals);
+      const c = $('dealsGames');
+      c.innerHTML = '';
+      deals.slice(0, 10).forEach(g => {
+        const card = makeRowCard(g);
+        // Add free badge
+        const badge = document.createElement('div');
+        badge.className = 'deal-badge';
+        badge.textContent = '🔥 مجاني الآن';
+        card.style.position = 'relative';
+        card.appendChild(badge);
+        c.appendChild(card);
+      });
+      observeInstalls(c);
     }
 
     const allJson = await apiFetch('/games?cat=all&limit=24');

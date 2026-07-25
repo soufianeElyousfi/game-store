@@ -1051,6 +1051,23 @@ body {
 }
 .ad-dl-btn:hover { opacity: .85; }
 
+/* ─── Deal Badge ─── */
+.deal-badge {
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 50px;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 2px 6px rgba(239,68,68,.4);
+}
+
 /* ─── PWA Install Banner ─── */
 .install-banner {
   position: fixed;
