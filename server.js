@@ -113,20 +113,27 @@ function formatApp(item, catKey, locale) {
 app.get('/api/deals', async (req, res) => {
   try {
     const locale = detectLocale(req);
-    const key    = `deals:${locale.lang}`;
-    const apps   = await cached(key, () =>
-      gplay.list({
-        category:   gplay.category.GAME,
-        collection: gplay.collection.TOP_PAID,
-        num:        100,
-        lang:       locale.lang,
-        country:    locale.country,
-        fullDetail: true,
-      })
-    );
+
+    // Fetch from all paid collections in parallel
+    const [top, newPaid, topNew] = await Promise.all([
+      cached(`deals:top:${locale.lang}`, () =>
+        gplay.list({ category: gplay.category.GAME, collection: gplay.collection.TOP_PAID,     num: 100, lang: locale.lang, country: locale.country, fullDetail: true })),
+      cached(`deals:new:${locale.lang}`, () =>
+        gplay.list({ category: gplay.category.GAME, collection: gplay.collection.NEW_PAID,     num: 100, lang: locale.lang, country: locale.country, fullDetail: true })),
+      cached(`deals:topnew:${locale.lang}`, () =>
+        gplay.list({ category: gplay.category.GAME, collection: gplay.collection.TOP_NEW_PAID, num: 100, lang: locale.lang, country: locale.country, fullDetail: true })),
+    ]);
+
+    // Merge and deduplicate
+    const seen = new Set();
+    const all  = [...top, ...newPaid, ...topNew].filter(a => {
+      if (seen.has(a.appId)) return false;
+      seen.add(a.appId);
+      return true;
+    });
 
     // Keep only games that are now free (price dropped to 0)
-    const deals = apps.filter(a => a.free === true || a.price === 0 || a.priceText === 'Free');
+    const deals = all.filter(a => a.free === true || a.price === 0 || a.priceText === 'Free');
     res.json({ ok: true, games: deals.map(a => formatApp(a, 'all', locale)), locale });
   } catch (err) {
     console.error('deals error:', err.message);
