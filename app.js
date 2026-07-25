@@ -763,10 +763,11 @@
     resetInfiniteScroll();
     document.querySelectorAll('.sort-btn').forEach(b => b.classList.toggle('active', b.dataset.sort === 'default'));
 
-    const [featJson, topJson, newJson] = await Promise.all([
+    const [featJson, topJson, newJson, dealsJson] = await Promise.all([
       apiFetch('/featured'),
       apiFetch('/games?cat=all&limit=20'),
       apiFetch('/games?cat=all&limit=10'),
+      apiFetch('/deals'),
     ]);
 
     // Apply locale from first response
@@ -778,6 +779,13 @@
     newGamesCache = newJson.games || [];
     renderRow('topGames', topGamesCache);
     renderRow('newGames', newGamesCache);
+
+    // Deals section
+    const deals = dealsJson.games || [];
+    if (deals.length > 0) {
+      $('dealsSection').style.display = '';
+      renderRow('dealsGames', deals);
+    }
 
     const allJson = await apiFetch('/games?cat=all&limit=24');
     if (allJson.locale) applyLocale(allJson.locale);

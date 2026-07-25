@@ -109,6 +109,31 @@ function formatApp(item, catKey, locale) {
   };
 }
 
+// GET /api/deals — paid games that are currently free (temporarily free)
+app.get('/api/deals', async (req, res) => {
+  try {
+    const locale = detectLocale(req);
+    const key    = `deals:${locale.lang}`;
+    const apps   = await cached(key, () =>
+      gplay.list({
+        category:   gplay.category.GAME,
+        collection: gplay.collection.TOP_PAID,
+        num:        100,
+        lang:       locale.lang,
+        country:    locale.country,
+        fullDetail: true,
+      })
+    );
+
+    // Keep only games that are now free (price dropped to 0)
+    const deals = apps.filter(a => a.free === true || a.price === 0 || a.priceText === 'Free');
+    res.json({ ok: true, games: deals.map(a => formatApp(a, 'all', locale)), locale });
+  } catch (err) {
+    console.error('deals error:', err.message);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 // GET /api/locale — let browser know detected locale
 app.get('/api/locale', (req, res) => {
   res.json(detectLocale(req));
